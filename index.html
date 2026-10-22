@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صيدلية الدكتورة دعاء مفرح خفاجة - Dr. Doaa Mofreh Khafaga Pharmacy</title>
+    
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Three.js Library for 3D Background Canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        pharmacy: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            800: '#115e59',
+                            900: '#134e4a',
+                            dark: '#030712',
+                        }
+                    },
+                    animation: {
+                        'float-slow': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 6s ease-in-out 3s infinite',
+                        'pulse-glow': 'pulseGlow 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-15px) rotate(2deg)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { opacity: '0.6', filter: 'drop-shadow(0 0 15px rgba(20, 184, 166, 0.4))' },
+                            '50%': { opacity: '1', filter: 'drop-shadow(0 0 30px rgba(20, 184, 166, 0.8))' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+
+        /* Custom Glassmorphism Styles */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-button {
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.9), rgba(2, 132, 199, 0.9));
+            box-shadow: 0 10px 25px -5px rgba(20, 184, 166, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .glass-button:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 35px -5px rgba(20, 184, 166, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        /* 3D Canvas Background */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .star-rating i {
+            transition: all 0.2s ease;
+        }
+
+        .star-rating i:hover {
+            transform: scale(1.25) rotate(5deg);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-teal-500 selection:text-white">
+
+    <canvas id="bg-canvas"></canvas>
+
+    <header class="w-full max-w-6xl mx-auto px-4 py-6 flex justify-between items-center z-10">
+        <div class="flex items-center space-x-3 space-x-reverse">
+            <div class="w-12 h-12 rounded-2xl glass-card p-1.5 flex items-center justify-center animate-pulse-glow">
+                <img src="logo.jpg" alt="Pharmacy Logo" class="w-full h-full object-contain rounded-xl" onerror="this.onerror=null; this.src='caduceus_blue.jpg';">
+            </div>
+            <div>
+                <h1 id="nav-title-ar" class="text-sm md:text-base font-bold text-teal-300 tracking-wide">صيدلية د/ دعاء خفاجة</h1>
+                <p id="nav-title-en" class="text-xs text-gray-400 font-sans hidden">Dr. Doaa Khafaga Pharmacy</p>
+            </div>
+        </div>
+
+        <!-- Language Switcher Button -->
+        <button id="lang-toggle-btn" onclick="toggleLanguage()" class="glass-card px-4 py-2 rounded-xl text-xs md:text-sm font-semibold flex items-center gap-2 hover:border-teal-400 transition-all duration-300">
+            <i class="fa-solid fa-globe text-teal-400 text-base"></i>
+            <span id="lang-btn-text">English</span>
+        </button>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center px-4 py-8 z-10">
+        <div class="max-w-3xl w-full">
+            
+            <!-- Main Glass Card Container -->
+            <div class="glass-card rounded-3xl p-6 md:p-10 text-center relative overflow-hidden transition-all duration-500 hover:border-teal-500/30">
+                
+                <!-- Floating Decorative 3D Images from Uploads -->
+                <img src="172ba45f0ccecd3fd0cc5c84c417f27e.jpg" alt="Pills 3D" class="absolute -top-10 -right-10 w-28 md:w-36 h-auto opacity-40 md:opacity-60 rounded-3xl blur-[0.5px] animate-float-slow pointer-events-none object-cover shadow-2xl" onerror="this.style.display='none'">
+                <img src="53dae6cab77d04f5677cdc872754c967.jpg" alt="DNA 3D" class="absolute -bottom-10 -left-10 w-28 md:w-36 h-auto opacity-30 md:opacity-50 rounded-3xl blur-[0.5px] animate-float-delayed pointer-events-none object-cover shadow-2xl" onerror="this.style.display='none'">
+
+                <!-- Badge -->
+        <div class="flex items-center space-x-3 space-x-reverse">
+            <div class="w-12 h-12 rounded-2xl glass-card p-1.5 flex items-center justify-center animate-pulse-glow overflow-hidden">
+                <img src="10d7e531b7075a35bdae2fdef5e916e2.jpg" alt="Pharmacy Caduceus Logo" class="w-full h-full object-contain rounded-xl" onerror="this.onerror=null; this.src='440eb8dc899df93920d6417eac232fa8.jpg';">
+            </div>
+            <div>
+                <h1 id="nav-title-ar" class="text-sm md:text-base font-bold text-teal-300 tracking-wide">صيدلية د/ دعاء خفاجة</h1>
+                <p id="nav-title-en" class="text-xs text-gray-400 font-sans hidden">Dr. Doaa Khafaga Pharmacy</p>
+            </div>
+        </div>
+
+                <!-- Main Title -->
+                <h1 class="text-2xl md:text-4xl font-extrabold text-white mb-3 tracking-tight leading-relaxed">
+                    <span data-ar="صيدلية الدكتورة دعاء مفرح خفاجة" data-en="Dr. Doaa Mofreh Khafaga Pharmacy">صيدلية الدكتورة دعاء مفرح خفاجة</span>
+                </h1>
+
+                <!-- Working Hours Card -->
+                <div class="my-6 inline-flex flex-col sm:flex-row items-center justify-center gap-3 bg-slate-900/60 border border-slate-700/50 rounded-2xl px-5 py-3 text-sm text-gray-300">
+                    <div class="flex items-center gap-2 text-amber-400 font-semibold">
+                        <i class="fa-regular fa-clock text-lg"></i>
+                        <span data-ar="مواعيد العمل:" data-en="Working Hours:">مواعيد العمل:</span>
+                    </div>
+                    <span data-ar="كل يوم من 8 صباحاً لحد 1:30 بعد منتصف الليل" data-en="Every day from 8:00 AM to 1:30 AM (Midnight)">كل يوم من 8 صباحاً لحد 1:30 بعد منتصف الليل</span>
+                </div>
+
+                <!-- Customer Message Box -->
+                <div class="bg-gradient-to-r from-teal-950/40 via-slate-900/50 to-teal-950/40 border border-teal-500/20 rounded-2xl p-5 md:p-6 my-6 shadow-inner">
+                    <i class="fa-solid fa-quote-right text-teal-400/40 text-3xl mb-2 block"></i>
+                    <p class="text-base md:text-xl font-bold text-teal-100 leading-relaxed max-w-xl mx-auto" data-ar="&quot;تشرفنا بتقديم خدمة تليق بك، نرجو ترك تقييم مناسب لما قدمناه لحضرتكم من هذا الرابط&quot;" data-en="&quot;We were honored to serve you. Please leave an appropriate review for our service via this link&quot;">
+                        "تشرفنا بتقديم خدمة تليق بك، نرجو ترك تقييم مناسب لما قدمناه لحضرتكم من هذا الرابط"
+                    </p>
+                </div>
+
+                <!-- Interactive Star Rating Helper -->
+                <div class="my-6">
+                    <p class="text-xs text-gray-400 mb-3" data-ar="انقر على النجوم لإعطاء تقييمك المباشر:" data-en="Click stars to share your direct feedback:">انقر على النجوم لإعطاء تقييمك المباشر:</p>
+                    <div class="star-rating flex justify-center items-center gap-2 text-2xl md:text-3xl text-amber-400 cursor-pointer">
+                        <i class="fa-solid fa-star hover:text-amber-300" onclick="redirectToGoogleMaps()"></i>
+                        <i class="fa-solid fa-star hover:text-amber-300" onclick="redirectToGoogleMaps()"></i>
+                        <i class="fa-solid fa-star hover:text-amber-300" onclick="redirectToGoogleMaps()"></i>
+                        <i class="fa-solid fa-star hover:text-amber-300" onclick="redirectToGoogleMaps()"></i>
+                        <i class="fa-solid fa-star hover:text-amber-300" onclick="redirectToGoogleMaps()"></i>
+                    </div>
+                </div>
+
+                <!-- Google Maps Call to Action Button -->
+                <div class="mt-8 mb-2">
+                    <a id="gmaps-btn" href="https://www.google.com/maps/place/%D8%B5%D9%8A%D8%AF%D9%84%D9%8A%D8%A9+%D8%A7%D9%84%D8%AF%D9%83%D8%AA%D9%88%D8%B1%D8%A9+%D8%AF%D8%B9%D8%A7%D8%A1+%D9%85%D9%81%D8%B1%D8%AD+%D8%AE%D9%81%D8%A7%D8%AC%D9%87%E2%80%AD/@30.9744796,30.8667819,21z/data=!4m16!1m7!3m6!1s0x14f64d278fe55f5f:0xa45229db29af2ef2!2z2LXZitiv2YTZitipINin2YTYr9mD2KrZiNix2Kkg2K_Yudin2KEg2YXZgdix2K0g2K7Zgdin2KzZhw!8m2!3d30.9746222!4d30.8667477!16s%2Fg%2F11fmmvsn5x!3m7!1s0x14f64d278fe55f5f:0xa45229db29af2ef2!8m2!3d30.9746222!4d30.8667477!9m1!1b1!16s%2Fg%2F11fmmvsn5x?entry=ttu&g_ep=EgoyMDI2MTAxOS4wIKXMDSoASAFQAw%3D%3D" target="_blank" class="glass-button inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-white font-extrabold text-base md:text-lg w-full sm:w-auto tracking-wide group">
+                        <i class="fa-map-marker-alt fa-solid text-xl group-hover:bounce"></i>
+                        <span data-ar="اضغط هنا للتقييم على جوجل مابس" data-en="Rate Us on Google Maps Now">اضغط هنا للتقييم على جوجل مابس</span>
+                        <i class="fa-solid fa-arrow-left text-sm group-hover:-translate-x-1 transition-transform dir-arrow"></i>
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="w-full max-w-6xl mx-auto px-4 py-6 z-10">
+        <div class="glass-card rounded-2xl p-4 md:p-5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs md:text-sm text-gray-400">
+            
+            <div class="flex items-center gap-2">
+                <span data-ar="تطوير وتصميم الموقع بواسطة:" data-en="Designed & Developed by:">تطوير وتصميم الموقع بواسطة:</span>
+                <span class="font-bold text-teal-300">م. محمد أشرف شتيه (M7MD0V)</span>
+            </div>
+
+            <!-- Social Links -->
+            <div class="flex items-center gap-4">
+                <a href="https://www.facebook.com/M7MD0V" target="_blank" rel="noopener font-sans" class="w-9 h-9 rounded-xl glass-card flex items-center justify-center text-teal-400 hover:text-white hover:bg-teal-500 transition-all duration-300 hover:scale-110" title="Facebook">
+                    <i class="fa-brands fa-facebook-f text-base"></i>
+                </a>
+                <a href="https://www.tiktok.com/@eng_m7mdov" target="_blank" rel="noopener" class="w-9 h-9 rounded-xl glass-card flex items-center justify-center text-teal-400 hover:text-white hover:bg-teal-500 transition-all duration-300 hover:scale-110" title="TikTok">
+                    <i class="fa-brands fa-tiktok text-base"></i>
+                </a>
+                <a href="https://www.instagram.com/_m7md0v_/" target="_blank" rel="noopener" class="w-9 h-9 rounded-xl glass-card flex items-center justify-center text-teal-400 hover:text-white hover:bg-teal-500 transition-all duration-300 hover:scale-110" title="Instagram">
+                    <i class="fa-brands fa-instagram text-base"></i>
+                </a>
+            </div>
+
+        </div>
+    </footer>
+
+    <script>
+        // Language Toggle Logic
+        let currentLang = 'ar';
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            const htmlTag = document.documentElement;
+            const langBtnText = document.getElementById('lang-btn-text');
+            const navTitleAr = document.getElementById('nav-title-ar');
+            const navTitleEn = document.getElementById('nav-title-en');
+            const dirArrow = document.querySelector('.dir-arrow');
+
+            if (currentLang === 'en') {
+                htmlTag.setAttribute('dir', 'ltr');
+                htmlTag.setAttribute('lang', 'en');
+                langBtnText.textContent = 'العربية';
+                navTitleAr.classList.add('hidden');
+                navTitleEn.classList.remove('hidden');
+                if(dirArrow) {
+                    dirArrow.classList.remove('fa-arrow-left');
+                    dirArrow.classList.add('fa-arrow-right');
+                }
+            } else {
+                htmlTag.setAttribute('dir', 'rtl');
+                htmlTag.setAttribute('lang', 'ar');
+                langBtnText.textContent = 'English';
+                navTitleAr.classList.remove('hidden');
+                navTitleEn.classList.add('hidden');
+                if(dirArrow) {
+                    dirArrow.classList.remove('fa-arrow-right');
+                    dirArrow.classList.add('fa-arrow-left');
+                }
+            }
+
+            // Update all elements with data attributes
+            document.querySelectorAll('[data-ar]').forEach(el => {
+                el.innerHTML = el.getAttribute(`data-${currentLang}`);
+            });
+        }
+
+        function redirectToGoogleMaps() {
+            const btn = document.getElementById('gmaps-btn');
+            if (btn) btn.click();
+        }
+
+        // Initialize 3D Particle Background Scene using Three.js
+        window.addEventListener('load', () => {
+            const canvas = document.getElementById('bg-canvas');
+            if (!canvas || typeof THREE === 'undefined') return;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            // Create 3D Molecule-like particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 120;
+            const posArray = new Float32Array(particlesCount * 3);
+
+            for(let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 15;
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.05,
+                color: 0x14b8a6,
+                transparent: true,
+                opacity: 0.7,
+                blending: THREE.AdditiveBlending
+            });
+
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+
+            camera.position.z = 5;
+
+            // Interactive Mouse Movement Effect
+            let mouseX = 0;
+            let mouseY = 0;
+
+            document.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX / window.innerWidth) - 0.5;
+                mouseY = (event.clientY / window.innerHeight) - 0.5;
+            });
+
+            // Animation Loop
+            const clock = new THREE.Clock();
+
+            function animate() {
+                requestAnimationFrame(animate);
+                const elapsedTime = clock.getElapsedTime();
+
+                particlesMesh.rotation.y = elapsedTime * 0.05;
+                particlesMesh.rotation.x = -mouseY * 0.5;
+                particlesMesh.rotation.y += mouseX * 0.5;
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            // Handle Resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        });
+    </script>
+</body>
+</html>
